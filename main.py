@@ -113,6 +113,7 @@ def run_diagnostics():
 
     print(f"\n✅ Saved to: {file_path}")
     os.startfile(file_path)
+    input("\nPress Enter to exit...")
 
 if __name__ == "__main__":
     run_diagnostics()
