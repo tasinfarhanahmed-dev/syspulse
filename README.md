@@ -1,92 +1,128 @@
-SysPulse: Windows PC Health & Utility CLI
+# SysPulse
 
-Build Latest release Downloads Show Image Show Image
+**A lightweight, open-source Windows PC health & utility CLI built in Python.**
 
-A lightweight, open-source Windows diagnostic and maintenance tool built in Python. One command gives your PC a health score from 0 to 100, tells you what is costing you points, and exports a report you can read, parse or screenshot.
+[![Build](https://shields.io)]()
+[![Latest Release](https://shields.io)]()
+[![Downloads](https://shields.io)]()
+[![License: MIT](https://shields.io)](LICENSE)
 
-<!-- Add a demo GIF here: ![SysPulse demo](docs/demo.gif) -->
-What's new in v2.1
-PC Health Score (0-100) with a letter grade and a list of what is costing you points
-Shareable Health Card: a screenshot-friendly HTML card (no hostname or IP addresses on it)
-Scan history and trends: every scan is saved locally, so you can see if your PC is getting better or worse
-Live dashboard: auto-updating CPU, RAM, disk and network view
-Offline virus check: drives Windows Defender with its local signatures, detect-only by default
-Startup program inspector: see what slows down your boot
-Network check: local/public IP and ping to 1.1.1.1 and 8.8.8.8
-Battery health: wear level plus Windows' own powercfg report
-Large file finder: top 10 biggest files in Downloads, C:\Users or any folder
-Windows Update and system file checks: pending updates, DISM /CheckHealth, sfc /verifyonly (read-only)
-Export as TXT, JSON, HTML or Card
-CLI flags for automation (Task Scheduler friendly) and color-coded output
-Download (no Python needed)
-Get syspulse.exe from the latest release.
-Double-click it for the interactive menu, or run it from a terminal with flags (below).
-Verify your download
+One command gives your PC a **0–100 Health Score**, breaks down exactly what is costing you points, and exports a clean report you can read, parse, or share.
 
-Each release includes a syspulse.exe.sha256 file, and the exe is built by GitHub Actions straight from this source code. Check it yourself:
+---
 
-powershell
+## ✨ Features
+
+* **PC Health Score (0–100):** Instant letter grade (`A`–`F`) with an itemized list of point deductions.
+* **Shareable Health Card:** Screenshot-friendly HTML summary card with sensitive info (hostname, IP addresses) stripped out.
+* **Scan History & Trends:** Automatically saves scans locally to track whether your PC's health is improving or degrading over time.
+* **Live Dashboard:** Real-time, auto-updating terminal view of CPU, RAM, disk, and network metrics.
+* **Offline Virus Check:** Triggers Windows Defender using local signatures (detect-only by default, with optional remediation).
+* **System & Maintenance Utilities:**
+  * **Startup Inspector:** Identify apps slowing down boot times.
+  * **Network Diagnostics:** View local/public IPs and ping latency to `1.1.1.1` and `8.8.8.8`.
+  * **Battery Health:** Check wear levels alongside Windows' native `powercfg` report.
+  * **Large File Finder:** Locate the top 10 largest files in `Downloads`, `C:\Users`, or any custom path.
+  * **OS Integrity & Updates:** Check pending Windows Updates and run read-only `DISM /CheckHealth` and `sfc /verifyonly`.
+  * **Quick Cleanup:** Clear loose files in `%TEMP%` and flush the Windows DNS cache.
+* **Automation-Ready:** Flexible CLI flags, exit codes, and plain-text output built for Task Scheduler and scripts.
+
+---
+
+## 📦 Installation
+
+### Option 1: Standalone Executable (No Python Required)
+1. Download `syspulse.exe` from the [Latest Release](../../releases/latest).
+2. Double-click to launch the **interactive menu**, or run it from PowerShell/CMD with CLI flags.
+
+#### Verify Your Download
+Every release includes a `syspulse.exe.sha256` checksum generated directly by GitHub Actions. Verify the integrity of your download in PowerShell:
+
+```powershell
 Get-FileHash .\syspulse.exe -Algorithm SHA256
+```
 
-The exe is not code-signed, so Windows SmartScreen or your antivirus may show a warning. You can read every line of the source here, or run from source instead:
+> **Note on SmartScreen:** Because `syspulse.exe` is not code-signed, Windows SmartScreen or your antivirus may display a warning. You can audit the full source code in this repository or run directly from Python below.
 
-powershell
+### Option 2: Run from Source
+```powershell
+git clone https://github.com
+cd syspulse
 pip install -r requirements.txt
 python main.py
-Usage
+```
 
-Run with no flags for the interactive menu, or use flags for automation:
+---
 
-Flag	What it does
---scan	Full health scan and report export
---format txt|json|html|card|all	Report format for --scan (default txt)
---no-net	Privacy mode for --scan: no public-IP lookup, no pings
---live	Live dashboard (Ctrl+C to exit)
---history	Past scan scores and trends
---startup	List startup programs
---network	Local/public IP and DNS ping latency
---battery	Battery wear and powercfg report
---large-files [PATH]	10 largest files (default: Downloads)
---updates	Pending Windows updates
---integrity	DISM /CheckHealth and sfc /verifyonly (needs Administrator)
---virus-scan [quick|full|PATH]	Offline Defender scan; exit code 2 = threats found
---remediate	Let Defender remove or quarantine threats found by --virus-scan
---clean	Delete loose files in %TEMP% (no prompt)
---flush-dns	Flush the Windows DNS cache
---serious	Turn off the playful one-liners
---no-color	Plain output, good for logs
+## 🚀 Usage
 
-Example: a daily report with Task Scheduler:
+Run `syspulse.exe` with **no flags** to open the interactive menu, or pass flags directly for quick checks and automation:
 
-powershell
+### CLI Flags
+
+| Flag | Description |
+| :--- | :--- |
+| `--scan` | Run a full health scan and export a report |
+| `--format <type>` | Output format for `--scan`: `txt`, `json`, `html`, `card`, or `all` *(default: `txt`)* |
+| `--no-net` | Privacy mode for `--scan` (skips public IP lookup and DNS pings) |
+| `--live` | Open the live resource dashboard (`Ctrl+C` to exit) |
+| `--history` | View past scan scores and health trends |
+| `--startup` | List startup programs |
+| `--network` | Check local/public IP and DNS ping latency |
+| `--battery` | Display battery wear level and `powercfg` report |
+| `--large-files [PATH]` | List the 10 largest files *(default: `Downloads`)* |
+| `--updates` | Check for pending Windows updates |
+| `--integrity` | Run `DISM /CheckHealth` and `sfc /verifyonly` *(requires Administrator)* |
+| `--virus-scan [MODE]` | Offline Defender scan: `quick`, `full`, or `[PATH]` *(exit code `2` = threats found)* |
+| `--remediate` | Allow Defender to quarantine/remove threats found during `--virus-scan` |
+| `--clean` | Delete loose files in `%TEMP%` without prompting |
+| `--flush-dns` | Flush the Windows DNS cache |
+| `--serious` | Disable playful one-liners in output |
+| `--no-color` | Output plain text without ANSI colors *(ideal for log files)* |
+
+### Automation Example (Task Scheduler)
+Generate a daily, uncolored HTML health report automatically:
+```powershell
 syspulse.exe --scan --format html --no-color
-How the Health Score works
+```
 
-The score starts at 100. Each factor can only cost a capped number of points, so one bad reading never zeroes everything:
+---
 
-Factor	Max points lost
-RAM usage (starts costing above 60%)	20
-Disk usage (starts costing above 70%)	20
-Driver errors	15
-CPU load	10
-Startup programs	10
-Battery wear	10
-Network latency / unreachable DNS	10
+## 📊 How the Health Score Works
 
-Grades: A 90+, B 80+, C 70+, D 60+, F below 60. CPU load is a single moment in time, so run the scan on a typical day for a fair number.
+Your PC starts at **100 points**. Deductions are capped per category so a single spike never tanks your entire score:
 
-Privacy and trust
-No telemetry, no accounts, no analytics. Reports and history stay on your PC (~/.syspulse/history.json and your Desktop).
-The only network activity is the public-IP lookup (api.ipify.org) and pings to 1.1.1.1 and 8.8.8.8. Use --no-net to skip both during a scan.
-The Health Card leaves out your PC name and IP addresses, so it is safe to screenshot.
-The virus check only controls Windows Defender. SysPulse is not an antivirus and does not detect malware itself. Signatures are as current as your last Windows update.
-The temp cleaner only deletes loose files directly inside %TEMP%, never subfolders. The large file finder never deletes anything.
-Contributing
+| Factor | Max Points Lost | Notes |
+| :--- | :---: | :--- |
+| **RAM Usage** | `20` | Deductions begin above 60% usage |
+| **Disk Usage** | `20` | Deductions begin above 70% usage |
+| **Driver Errors** | `15` | Based on Windows device/driver status |
+| **CPU Load** | `10` | Point-in-time snapshot; scan during typical workload |
+| **Startup Programs** | `10` | Impact from enabled boot items |
+| **Battery Wear** | `10` | Applies to laptops/devices with batteries |
+| **Network Latency** | `10` | Ping latency or unreachable DNS (`1.1.1.1` / `8.8.8.8`) |
 
-Ideas, bug reports and pull requests are welcome. Open an issue first for big changes.
+**Grading Scale:** `A` (90+) · `B` (80–89) · `C` (70–79) · `D` (60–69) · `F` (< 60)
 
-License
+---
 
-MIT. See LICENSE.
+## 🔒 Privacy & Safety Guarantees
 
-If SysPulse helped you, a star on the repo helps other people find it.
+* **Zero Telemetry:** No accounts, analytics, or background tracking.
+* **Local Data Only:** Reports and scan history remain strictly on your machine (`~/.syspulse/history.json` and your Desktop).
+* **Minimal Network Calls:** SysPulse only contacts `api.ipify.org` (public IP lookup) and pings `1.1.1.1` / `8.8.8.8`. Use `--no-net` to run completely offline.
+* **Safe to Share:** The HTML Health Card omits your computer name and IP addresses.
+* **Non-Destructive Defaults:**
+  * `--virus-scan` only invokes Windows Defender's existing local engine/signatures in read-only detection mode unless `--remediate` is explicitly passed.
+  * `--clean` only removes loose files directly inside `%TEMP%`—never subfolders.
+  * `--large-files` is strictly read-only and never deletes anything.
+
+---
+
+## 🤝 Contributing & License
+
+Contributions, bug reports, and feature ideas are welcome! Please open an issue first before submitting large changes.
+
+Licensed under the [MIT License](LICENSE).
+
+> ⭐ **Enjoying SysPulse?** Give the repository a star to help others discover it!
