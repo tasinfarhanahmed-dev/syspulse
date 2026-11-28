@@ -1,26 +1,50 @@
-name: Build Windows EXE Release
+name: Build & Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - name: Install dependencies
-        run: pip install psutil pyinstaller
-      - name: Build syspulse.exe
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Smoke test
+        run: python main.py --version
+
+      - name: Build exe
         run: pyinstaller --onefile --name syspulse main.py
-      - name: Upload syspulse.exe to Release
+
+      - name: Create SHA-256 checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash dist/syspulse.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  syspulse.exe" | Out-File -Encoding ascii dist/syspulse.exe.sha256
+          Write-Host "SHA-256: $hash"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: syspulse
+          path: dist/*
+
+      - name: Publish release assets
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/syspulse.exe
+          files: |
+            dist/syspulse.exe
+            dist/syspulse.exe.sha256
